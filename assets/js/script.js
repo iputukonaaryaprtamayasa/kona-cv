@@ -1,106 +1,93 @@
-'use strict';
-
-
+"use strict";
 
 // element toggle function
-const elementToggleFunc = function (elem) { elem.classList.toggle("active"); }
+const elementToggleFunc = function (elem) {
+  elem.classList.toggle("active");
+};
 
-
-
-// sidebar variables
+// ================= SIDEBAR =================
 const sidebar = document.querySelector("[data-sidebar]");
 const sidebarBtn = document.querySelector("[data-sidebar-btn]");
 
-// sidebar toggle functionality for mobile
-sidebarBtn.addEventListener("click", function () { elementToggleFunc(sidebar); });
+sidebarBtn.addEventListener("click", function () {
+  elementToggleFunc(sidebar);
+});
 
-
-
-// testimonials variables
+// ================= TESTIMONIALS =================
 const testimonialsItem = document.querySelectorAll("[data-testimonials-item]");
 const modalContainer = document.querySelector("[data-modal-container]");
 const modalCloseBtn = document.querySelector("[data-modal-close-btn]");
 const overlay = document.querySelector("[data-overlay]");
 
-// modal variable
 const modalImg = document.querySelector("[data-modal-img]");
 const modalTitle = document.querySelector("[data-modal-title]");
 const modalText = document.querySelector("[data-modal-text]");
 
-// modal toggle function
+// modal toggle
 const testimonialsModalFunc = function () {
   modalContainer.classList.toggle("active");
   overlay.classList.toggle("active");
-}
+};
 
-// add click event to all modal items
-for (let i = 0; i < testimonialsItem.length; i++) {
+// klik card testimonials
+testimonialsItem.forEach((item) => {
+  item.addEventListener("click", function (e) {
+    // ✅ FIX: kalau klik link IG → jangan buka modal
+    if (e.target.closest("a")) return;
 
-  testimonialsItem[i].addEventListener("click", function () {
+    // ambil data
+    const avatar = this.querySelector("[data-testimonials-avatar]");
+    const title = this.querySelector(".testimonials-item-title");
+    const text = this.querySelector("[data-testimonials-text]");
 
-    modalImg.src = this.querySelector("[data-testimonials-avatar]").src;
-    modalImg.alt = this.querySelector("[data-testimonials-avatar]").alt;
-    modalTitle.innerHTML = this.querySelector("[data-testimonials-title]").innerHTML;
-    modalText.innerHTML = this.querySelector("[data-testimonials-text]").innerHTML;
+    modalImg.src = avatar.src;
+    modalImg.alt = avatar.alt;
+    modalTitle.innerHTML = title.innerText; // ambil teks saja (biar bersih)
+    modalText.innerHTML = text.innerHTML;
 
+    // buka modal
     testimonialsModalFunc();
-
   });
+});
 
-}
-
-// add click event to modal close button
+// close modal
 modalCloseBtn.addEventListener("click", testimonialsModalFunc);
 overlay.addEventListener("click", testimonialsModalFunc);
 
-
-
-// custom select variables
+// ================= FILTER PORTFOLIO =================
 const select = document.querySelector("[data-select]");
 const selectItems = document.querySelectorAll("[data-select-item]");
 const selectValue = document.querySelector("[data-selecct-value]");
 const filterBtn = document.querySelectorAll("[data-filter-btn]");
+const filterItems = document.querySelectorAll("[data-filter-item]");
 
-select.addEventListener("click", function () { elementToggleFunc(this); });
+select.addEventListener("click", function () {
+  elementToggleFunc(this);
+});
 
-// add event in all select items
-for (let i = 0; i < selectItems.length; i++) {
-  selectItems[i].addEventListener("click", function () {
-
+selectItems.forEach((item) => {
+  item.addEventListener("click", function () {
     let selectedValue = this.innerText.toLowerCase();
     selectValue.innerText = this.innerText;
     elementToggleFunc(select);
     filterFunc(selectedValue);
-
   });
-}
-
-// filter variables
-const filterItems = document.querySelectorAll("[data-filter-item]");
+});
 
 const filterFunc = function (selectedValue) {
-
-  for (let i = 0; i < filterItems.length; i++) {
-
-    if (selectedValue === "all") {
-      filterItems[i].classList.add("active");
-    } else if (selectedValue === filterItems[i].dataset.category) {
-      filterItems[i].classList.add("active");
+  filterItems.forEach((item) => {
+    if (selectedValue === "all" || selectedValue === item.dataset.category) {
+      item.classList.add("active");
     } else {
-      filterItems[i].classList.remove("active");
+      item.classList.remove("active");
     }
+  });
+};
 
-  }
-
-}
-
-// add event in all filter button items for large screen
 let lastClickedBtn = filterBtn[0];
 
-for (let i = 0; i < filterBtn.length; i++) {
-
-  filterBtn[i].addEventListener("click", function () {
-
+filterBtn.forEach((btn) => {
+  btn.addEventListener("click", function () {
     let selectedValue = this.innerText.toLowerCase();
     selectValue.innerText = this.innerText;
     filterFunc(selectedValue);
@@ -108,52 +95,65 @@ for (let i = 0; i < filterBtn.length; i++) {
     lastClickedBtn.classList.remove("active");
     this.classList.add("active");
     lastClickedBtn = this;
-
   });
+});
 
-}
-
-
-
-// contact form variables
+// ================= CONTACT FORM =================
 const form = document.querySelector("[data-form]");
 const formInputs = document.querySelectorAll("[data-form-input]");
 const formBtn = document.querySelector("[data-form-btn]");
 
-// add event to all form input field
-for (let i = 0; i < formInputs.length; i++) {
-  formInputs[i].addEventListener("input", function () {
-
-    // check form validation
+formInputs.forEach((input) => {
+  input.addEventListener("input", function () {
     if (form.checkValidity()) {
       formBtn.removeAttribute("disabled");
     } else {
       formBtn.setAttribute("disabled", "");
     }
-
   });
-}
+});
 
-
-
-// page navigation variables
+// ================= NAVIGATION =================
 const navigationLinks = document.querySelectorAll("[data-nav-link]");
 const pages = document.querySelectorAll("[data-page]");
 
-// add event to all nav link
-for (let i = 0; i < navigationLinks.length; i++) {
-  navigationLinks[i].addEventListener("click", function () {
+navigationLinks.forEach((link) => {
+  link.addEventListener("click", function () {
+    const target = this.textContent.trim().toLowerCase();
 
-    for (let i = 0; i < pages.length; i++) {
-      if (this.innerHTML.toLowerCase() === pages[i].dataset.page) {
-        pages[i].classList.add("active");
-        navigationLinks[i].classList.add("active");
-        window.scrollTo(0, 0);
+    navigationLinks.forEach((el) => el.classList.remove("active"));
+    this.classList.add("active");
+
+    pages.forEach((page) => {
+      if (page.dataset.page === target) {
+        page.classList.add("active");
       } else {
-        pages[i].classList.remove("active");
-        navigationLinks[i].classList.remove("active");
+        page.classList.remove("active");
       }
-    }
+    });
 
+    window.scrollTo(0, 0);
   });
+});
+
+// ================= MODAL IMAGE AWARDS =================
+function openModal(element) {
+  const img = element.querySelector("img");
+  const modal = document.getElementById("imageModal");
+  const modalImg = document.getElementById("modalImg");
+
+  modal.style.display = "block";
+  modalImg.src = img.src;
 }
+
+// tombol close
+document.querySelector(".close-modal").onclick = function () {
+  document.getElementById("imageModal").style.display = "none";
+};
+
+// klik luar gambar
+document.getElementById("imageModal").onclick = function (e) {
+  if (e.target === this) {
+    this.style.display = "none";
+  }
+};
